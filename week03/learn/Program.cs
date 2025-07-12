@@ -1,13 +1,31 @@
 using System;
+using System.Collections.Generic;
 
-public class Program
+public class FirstDuplicateFinder
 {
-    static void Main(string[] args)
+    public static char? FindFirstDuplicate(string input)
     {
-        Console.WriteLine("\n======================\nDuplicate Counter\n======================");
-        DuplicateCounter.Run();
+        var seen = new HashSet<char>();
 
-        Console.WriteLine("\n======================\nTranslator\n======================");
-        Translator.Run();
+        foreach (char c in input)
+        {
+            if (seen.Contains(c))
+                return c;
+
+            seen.Add(c);
+        }
+
+        return null; // or '?' if you prefer a char fallback
+    }
+
+    public static void Run()
+    {
+        string[] tests = { "abcdef", "aabbcc", "abcdea", "", "abB", "aAa", "ñáéñ" };
+
+        foreach (var test in tests)
+        {
+            var result = FindFirstDuplicate(test);
+            Console.WriteLine($"Input: {test} → First duplicate: {(result.HasValue ? result.ToString() : "None")}");
+        }
     }
 }
