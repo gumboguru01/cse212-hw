@@ -28,7 +28,7 @@ public class PriorityQueueTests
     {
         var queue = new PriorityQueue();
         queue.Enqueue("First", 5);
-        queue.Enqueue("Second", 5);
+        queue.Enqueue("Second", 5); 
         queue.Enqueue("Third", 5);
 
         Assert.AreEqual("First", queue.Dequeue());
