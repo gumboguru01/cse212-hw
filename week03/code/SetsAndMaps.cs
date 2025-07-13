@@ -20,33 +20,57 @@ public static class SetsAndMaps
     /// </summary>
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
-    {
-        // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
-    }
+{
+    HashSet<string> wordSet = new HashSet<string>(words);
+    List<string> result = new List<string>();
 
-    /// <summary>
-    /// Read a census file and summarize the degrees (education)
-    /// earned by those contained in the file.  The summary
-    /// should be stored in a dictionary where the key is the
-    /// degree earned and the value is the number of people that 
-    /// have earned that degree.  The degree information is in
-    /// the 4th column of the file.  There is no header row in the
-    /// file.
-    /// </summary>
-    /// <param name="filename">The name of the file to read</param>
-    /// <returns>fixed array of divisors</returns>
-    public static Dictionary<string, int> SummarizeDegrees(string filename)
+    foreach (string word in words)
     {
-        var degrees = new Dictionary<string, int>();
-        foreach (var line in File.ReadLines(filename))
+        string reversed = new string(word.Reverse().ToArray());
+
+        // Skip same-letter words like "aa"
+        if (word[0] == word[1]) continue;
+
+        // Check if reverse exists and hasn't already been used
+        if (wordSet.Contains(reversed))
         {
-            var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
-        }
+            result.Add($"{word} & {reversed}");
 
-        return degrees;
+            // Remove both to avoid duplicate matching
+            wordSet.Remove(word);
+            wordSet.Remove(reversed);
+        }
     }
+
+    return result.ToArray();
+}
+
+   public static Dictionary<string, int> SummarizeDegrees(string filename)
+{
+    var degrees = new Dictionary<string, int>();
+
+    foreach (var line in File.ReadLines(filename))
+    {
+        var fields = line.Split(',');
+
+        // Check for at least 4 columns
+        if (fields.Length >= 4)
+        {
+            string degree = fields[3].Trim();
+
+            if (!string.IsNullOrEmpty(degree))
+            {
+                if (degrees.ContainsKey(degree))
+                    degrees[degree]++;
+                else
+                    degrees[degree] = 1;
+            }
+        }
+    }
+
+    return degrees;
+}
+
 
     /// <summary>
     /// Determine if 'word1' and 'word2' are anagrams.  An anagram
@@ -64,43 +88,75 @@ public static class SetsAndMaps
     /// Reminder: You can access a letter by index in a string by 
     /// using the [] notation.
     /// </summary>
-    public static bool IsAnagram(string word1, string word2)
-    {
-        // TODO Problem 3 - ADD YOUR CODE HERE
+   public static bool IsAnagram(string word1, string word2)
+{
+    // Normalize input: remove spaces and convert to lowercase
+    word1 = word1.Replace(" ", "").ToLower();
+    word2 = word2.Replace(" ", "").ToLower();
+
+    if (word1.Length != word2.Length)
         return false;
-    }
 
-    /// <summary>
-    /// This function will read JSON (Javascript Object Notation) data from the 
-    /// United States Geological Service (USGS) consisting of earthquake data.
-    /// The data will include all earthquakes in the current day.
-    /// 
-    /// JSON data is organized into a dictionary. After reading the data using
-    /// the built-in HTTP client library, this function will return a list of all
-    /// earthquake locations ('place' attribute) and magnitudes ('mag' attribute).
-    /// Additional information about the format of the JSON data can be found 
-    /// at this website:  
-    /// 
-    /// https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
-    /// 
-    /// </summary>
-    public static string[] EarthquakeDailySummary()
+    // Count letters in word1
+    var letterCount = new Dictionary<char, int>();
+
+    foreach (char c in word1)
     {
-        const string uri = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
-        using var client = new HttpClient();
-        using var getRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
-        using var jsonStream = client.Send(getRequestMessage).Content.ReadAsStream();
-        using var reader = new StreamReader(jsonStream);
-        var json = reader.ReadToEnd();
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-        var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
-
-        // TODO Problem 5:
-        // 1. Add code in FeatureCollection.cs to describe the JSON using classes and properties 
-        // on those classes so that the call to Deserialize above works properly.
-        // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
-        // 3. Return an array of these string descriptions.
-        return [];
+        if (letterCount.ContainsKey(c))
+            letterCount[c]++;
+        else
+            letterCount[c] = 1;
     }
+
+    // Subtract letter counts using word2
+    foreach (char c in word2)
+    {
+        if (!letterCount.ContainsKey(c))
+            return false;
+
+        letterCount[c]--;
+
+        if (letterCount[c] < 0)
+            return false;
+    }
+
+    return true;
+}
+
+   public static (int, int) MoveLeft((int x, int y) current, Dictionary<(int, int), (bool left, bool right, bool up, bool down)> maze)
+{
+    if (maze.TryGetValue(current, out var directions) && directions.left)
+    {
+        return (current.x - 1, current.y);
+    }
+    return current;
+}
+
+public static (int, int) MoveRight((int x, int y) current, Dictionary<(int, int), (bool left, bool right, bool up, bool down)> maze)
+{
+    if (maze.TryGetValue(current, out var directions) && directions.right)
+    {
+        return (current.x + 1, current.y);
+    }
+    return current;
+}
+
+public static (int, int) MoveUp((int x, int y) current, Dictionary<(int, int), (bool left, bool right, bool up, bool down)> maze)
+{
+    if (maze.TryGetValue(current, out var directions) && directions.up)
+    {
+        return (current.x, current.y - 1);
+    }
+    return current;
+}
+
+public static (int, int) MoveDown((int x, int y) current, Dictionary<(int, int), (bool left, bool right, bool up, bool down)> maze)
+{
+    if (maze.TryGetValue(current, out var directions) && directions.down)
+    {
+        return (current.x, current.y + 1);
+    }
+    return current;
+}
+
 }
