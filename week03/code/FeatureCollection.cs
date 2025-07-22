@@ -42,7 +42,10 @@ public static class EarthquakeHelper
         foreach (var feature in featureCollection.Features)
         {
             string place = feature.Properties.Place ?? "Unknown place";
-            string mag = feature.Properties.Mag.HasValue ? feature.Properties.Mag.Value.ToString("0.00") : "N/A";
+            string mag = feature.Properties.Mag.HasValue
+                ? feature.Properties.Mag.Value.ToString("0.00")
+                : "N/A";
+
             result.Add($"{place} - Mag {mag}");
         }
 
