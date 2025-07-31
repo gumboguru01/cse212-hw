@@ -167,5 +167,5 @@ public static class Recursion
         SolveMaze(results, maze, x, y - 1, new List<ValueTuple<int, int>>(currPath)); // up
     }
 }
-
+ 
 }
